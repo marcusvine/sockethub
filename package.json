@@ -1,0 +1,20 @@
+{
+  "name": "revealhub",
+  "description": "Node-Relay- info exchange for Reveal",
+  "version": "0.1.1",
+  "keywords": [
+    "Reveal,relay,RTC,websocket,socketio,nodejs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcusvine/sockethub.git"
+  },
+  "author": "Aaryadev",
+  "dependencies": {
+    "socket.io": "~2.3.0",
+    "node-static": "~0.7.0"
+  },
+  "engines": {
+    "node": "0.12.x"
+  }
+}
