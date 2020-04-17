@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
   socket.on('datapro',function(data){
     // update socketid
     nodes[current_node].datapro = socket.id;
-
+    io.to(socket.id).emit('data',{type:"nodelive"}); // unauth
   })
 
   socket.on('debug',function(data){
@@ -114,6 +114,7 @@ io.on('connection', (socket) => {
       // is data processor disconnected
       if(nodes[current_node].datapro == socket.id){
         nodes[current_node].datapro = false;
+        update_node(current_node,'status',0); // set that node in active
       }
       //if all users left the chanel delete room
       if(nodes[current_node].users.length == 0){
@@ -132,7 +133,10 @@ var sysinfo = function(){
 }
 
 var update_node = function(node,key,val){
-
+  var get = require('get');
+  get('https://reveal-it.net/api/nodes/update/'+node+'/'+key+'/'+val).perform(function(err, response) {
+    //console.log(response)
+  });
 }
 
 
