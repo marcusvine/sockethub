@@ -8,7 +8,7 @@ const INDEX = '/index.html';
 
 const server = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+  .listen(PORT, () => //console.log(`Listening on ${PORT}`));
 
 const io = socketIO(server);
 
@@ -17,7 +17,7 @@ var nodes=[];
 var production = false;
 
 io.on('connection', (socket) => {
-  console.log('Client connected');
+  //console.log('Client connected');
   userCount++;
   var current_node=false;
 	var user=null;
@@ -25,7 +25,7 @@ io.on('connection', (socket) => {
   sysinfo();
   socket.on('join',function(data){
     if(!nodes[data.node_id]){
-      console.log("create node");
+      //console.log("create node");
       nodes[data.node_id]={
 				 users: [],
          datapro:false, //data processor
@@ -42,10 +42,11 @@ io.on('connection', (socket) => {
 		socket.join(data.node_id); //join socket + room join
 		current_node = data.node_id; //add to current
     sysinfo();
-      //console.log(nodes);
+      ////console.log(nodes);
   })
 
   socket.on('data',function(data){
+    //console.log(data);
     if(current_node){ // if you have joined the node
         if(nodes[current_node].datapro){
           //data processor alive
@@ -68,7 +69,9 @@ io.on('connection', (socket) => {
 	});
 
   socket.on('result',function(obj){
-      io.to(obj.sid).emit('result',obj.data); // unauth
+    //console.log('result');
+    //console.log(obj);
+      io.to(obj.sid).emit('result',obj.data);
   });
 
   socket.on('datapro',function(data){
@@ -87,9 +90,9 @@ io.on('connection', (socket) => {
  setTimeout(function(){
     if(!current_node){
       socket.disconnect();
-      console.log('inactive client');
+      //console.log('inactive client');
     }else {
-      console.log('Active client :)');
+      //console.log('Active client :)');
     }
   }, 20000);
 
@@ -97,12 +100,12 @@ io.on('connection', (socket) => {
 
 
   socket.on('disconnect', () => {
-    console.log('Client disconnected')
+    //console.log('Client disconnected')
     userCount--;
     if(current_node){
 			socket.leave(current_node);
       nodes[current_node].users.splice((user.id-1),1); //remove current user from chanel user array
-      //console.log(nodes)
+      ////console.log(nodes)
       //is it debug id
       if(nodes[current_node].debug == socket.id){
         nodes[current_node].debug = false;
