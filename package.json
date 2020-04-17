@@ -1,5 +1,5 @@
 {
-  "name": "websockets-socket.io",
+  "name": "sockethub",
   "version": "1.0.0",
   "engines": {
     "node": "12.x"
@@ -9,7 +9,10 @@
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": [],
+  "keywords": [
+    "aaryadev",
+    "marcus"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {

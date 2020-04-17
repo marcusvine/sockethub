@@ -12,9 +12,20 @@ const server = express()
 
 const io = socketIO(server);
 
+var userCount=0;
+var chanels=[];
+
+
 io.on('connection', (socket) => {
   console.log('Client connected');
+  userCount++;
+  var current_chanel=false;
+	var user=null;
+
+
+
+
   socket.on('disconnect', () => console.log('Client disconnected'));
 });
 
-setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
+setInterval(() => io.emit('hb','hb'),1800);
