@@ -14,19 +14,22 @@ const io = socketIO(server);
 
 var userCount=0;
 var nodes=[];
-
+var production = false;
 
 io.on('connection', (socket) => {
   console.log('Client connected');
   userCount++;
-  var current_chanel=false;
+  var current_node=false;
 	var user=null;
+
   sysinfo();
   socket.on('join',function(data){
     if(!nodes[data.node_id]){
       console.log("create node");
       nodes[data.node_id]={
-				 users: []
+				 users: [],
+         datapro:false, //data processor
+         debug:false   //for admin to see all data which is incoming
 			}
     }
     // make user
@@ -37,17 +40,54 @@ io.on('connection', (socket) => {
 		}
     nodes[data.node_id].users.push(user); //add user
 		socket.join(data.node_id); //join socket + room join
-		current_chanel = data.node_id; //add to current
+		current_node = data.node_id; //add to current
     sysinfo();
       //console.log(nodes);
   })
 
   socket.on('data',function(data){
-    if(current_chanel){ // if you have joined the node
-		    io.to(current_chanel).emit('data',data);
+    if(current_node){ // if you have joined the node
+        if(nodes[current_node].datapro){
+          //data processor alive
+          io.to(nodes[current_node].datapro).emit('data',data);
+        }else{
+          // return erro saying no datapro
+          io.to(socket.id).emit('error',{msg:"NDP"}); // unauth
+        }
+
+        //debug for admin
+        if(nodes[current_node].debug){
+          io.to(nodes[current_node].datapro).emit('data',data);
+        }
+
+    }else{
+      // kill on spot - if dont know where to go i wont let you walk
+      io.to(socket.id).emit('error',{msg:"E401"}); // unauth
+      socket.disconnect();
     }
 	});
 
+  socket.on('datapro',function(data){
+    // update socketid
+    nodes[current_node].datapro = socket.id;
+
+  })
+
+  socket.on('debug',function(data){
+    nodes[current_node].debug = socket.id
+  })
+
+ //check user has joined or not
+  // if not dis connect
+  // wait for  20 sec
+ setTimeout(function(){
+    if(!current_node){
+      socket.disconnect();
+      console.log('inactive client');
+    }else {
+      console.log('Active client :)');
+    }
+  }, 20000);
 
 
 
@@ -55,10 +95,24 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Client disconnected')
     userCount--;
-    if(current_chanel){
-			socket.leave(current_chanel);
-      nodes[current_chanel].users.splice((user.id-1),1); //remove current user from chanel user array
-      console.log(nodes)
+    if(current_node){
+			socket.leave(current_node);
+      nodes[current_node].users.splice((user.id-1),1); //remove current user from chanel user array
+      //console.log(nodes)
+      //is it debug id
+      if(nodes[current_node].debug == socket.id){
+        nodes[current_node].debug = false;
+      }
+      // is data processor disconnected
+      if(nodes[current_node].datapro == socket.id){
+        nodes[current_node].datapro = false;
+      }
+      //if all users left the chanel delete room
+      if(nodes[current_node].users.length == 0){
+          delete nodes[current_node];
+      }
+
+
 		}
     sysinfo();
   });
@@ -69,5 +123,11 @@ var sysinfo = function(){
 	io.sockets.emit('sysinfo',{uc:userCount,nc:Object.keys(nodes).length});
 }
 
+var update_node = function(node,key,val){
 
-setInterval(() => io.emit('hb','hb'),5000);
+}
+
+
+
+
+//setInterval(() => io.emit('hb','hb'),5000);
