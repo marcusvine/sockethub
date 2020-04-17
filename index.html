@@ -7,10 +7,12 @@
       let status;
       let cc;
       let nc;
+      let name = Math.random(100,5800);
 
       socket.on('connect',function(dta){
         console.log('connected');
         document.getElementById('status').innerHTML = 'Connected. - '+socket.id;
+        join_chat();
       })
 
 
@@ -20,13 +22,26 @@
       socket.on('hb',function(){
         console.log('hb');
       })
+
+      socket.on('sysinfo',function(data){
+        document.getElementById('uc').innerHTML = ' Users count:'+data.uc;
+        document.getElementById('nc').innerHTML = ' Node count :'+data.nc;
+      })
+
+
+      function join_chat(){
+        socket.emit('join',{node_id:'gc',name:name});
+      }
+
+      
+
     </script>
   </head>
   <body>
     <div id="status">
     </div>
 
-    <div id="cc">
+    <div id="uc">
     </div>
     <div id="nc">
     </div>
