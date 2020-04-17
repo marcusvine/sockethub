@@ -67,6 +67,10 @@ io.on('connection', (socket) => {
     }
 	});
 
+  socket.on('result',function(obj){
+      io.to(obj.sid).emit('result',obj.data); // unauth
+  });
+
   socket.on('datapro',function(data){
     // update socketid
     nodes[current_node].datapro = socket.id;
