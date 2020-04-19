@@ -44,6 +44,12 @@ io.on('connection', (socket) => {
 		current_node = data.node_id; //add to current
     sysinfo();
       ////console.log(nodes);
+      // send event conformation to user too
+      io.to(obj.sid).emit('result',{type:"status",msg:"you have joined"+current_node});
+      // if the debugger is there send him too
+      if(nodes[current_node].debug){
+        io.to(nodes[current_node].debug).emit('data',{type:'status',msg:user.name+' has joined the node'});
+      }
   })
 
   socket.on('data',function(data){
@@ -74,6 +80,9 @@ io.on('connection', (socket) => {
     //console.log('result');
     //console.log(obj);
       io.to(obj.sid).emit('result',obj.data);
+      if(nodes[current_node].debug){
+        io.to(nodes[current_node].debug).emit('data',obj.data);
+      }
   });
 
   socket.on('datapro',function(data){
