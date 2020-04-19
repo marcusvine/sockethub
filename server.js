@@ -55,11 +55,12 @@ io.on('connection', (socket) => {
         }else{
           // return erro saying no datapro
           io.to(socket.id).emit('error',{msg:"NDP"}); // unauth
+
         }
 
         //debug for admin
         if(nodes[current_node].debug){
-          io.to(nodes[current_node].datapro).emit('data',data);
+          io.to(nodes[current_node].debug).emit('data',data);
         }
 
     }else{
