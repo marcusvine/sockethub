@@ -45,7 +45,7 @@ io.on('connection', (socket) => {
     sysinfo();
       ////console.log(nodes);
       // send event conformation to user too
-      io.to(obj.sid).emit('result',{type:"status",msg:"you have joined"+current_node});
+      io.to(socket.id).emit('result',{type:"status",msg:"you have joined"+current_node});
       // if the debugger is there send him too
       if(nodes[current_node].debug){
         io.to(nodes[current_node].debug).emit('data',{type:'status',msg:user.name+' has joined the node'});
