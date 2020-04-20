@@ -24,33 +24,35 @@ io.on('connection', (socket) => {
 	var user=null;
 
   sysinfo();
-  socket.on('join',function(data){
-    if(!nodes[data.node_id]){
+
+
+    if(!nodes["holland"]){
       //console.log("create node");
-      nodes[data.node_id]={
+      nodes["holland"]={
 				 users: [],
          datapro:false, //data processor
          debug:false   //for admin to see all data which is incoming
 			}
     }
     // make user
+    var clientIp = socket.request.connection.remoteAddress;
     user ={
-      id: nodes[data.node_id].users.length + 1,
-      name: data.name,
+      id: nodes["holland"].users.length + 1,
+      name: clientIp,
       socket_id: socket.id
 		}
-    nodes[data.node_id].users.push(user); //add user
-		socket.join(data.node_id); //join socket + room join
-		current_node = data.node_id; //add to current
+    nodes["holland"].users.push(user); //add user
+		socket.join("holland"); //join socket + room join
+		current_node = "holland"; //add to current
     sysinfo();
       ////console.log(nodes);
       // send event conformation to user too
       io.to(socket.id).emit('result',{type:"status",msg:"you have joined "+current_node,sid:socket.id});
       // if the debugger is there send him too
       if(nodes[current_node].debug){
-        io.to(nodes[current_node].debug).emit('data',{type:'status',msg:user.name+' has joined the node'});
+        io.to(nodes[current_node].debug).emit('data',{type:'status',msg:clientIp+' has joined the node'});
       }
-  })
+
 
   socket.on('data',function(data){
     //console.log(data);
