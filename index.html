@@ -12,7 +12,7 @@
       socket.on('connect',function(dta){
         console.log('connected');
         document.getElementById('status').innerHTML = 'Connected. - '+socket.id;
-        join_chat();
+
       })
 
 
@@ -29,11 +29,9 @@
       })
 
 
-      function join_chat(){
-        socket.emit('join',{node_id:'gc',name:name});
-      }
-
       
+
+
 
     </script>
   </head>
