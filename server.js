@@ -47,22 +47,33 @@ io.on('connection', (socket) => {
     sysinfo();
       ////console.log(nodes);
       // send event conformation to user too
-      io.to(socket.id).emit('result',{type:"status",msg:"you have joined "+current_node,sid:socket.id});
+      io.to(socket.id).emit('result',JSON.stringify({type:"status",msg:"you have joined "+current_node,sid:socket.id}));
       // if the debugger is there send him too
       if(nodes[current_node].debug){
-        io.to(nodes[current_node].debug).emit('data',{type:'status',msg:clientIp+' has joined the node'});
+        io.to(nodes[current_node].debug).emit('data',JSON.stringify({type:'status',msg:clientIp+' has joined the node'}));
       }
 
 
   socket.on('data',function(data){
     //console.log(data);
-    if(current_node){ // if you have joined the node
+
         if(nodes[current_node].datapro){
           //data processor alive
-          io.to(nodes[current_node].datapro).emit('data',data);
+          //check is it json
+          try{
+            var dtobj = JSON.parse(data);
+            dtobj.sid = socket.id;
+            io.to(nodes[current_node].datapro).emit('data',dtobj);
+
+          }catch(e){
+          io.to(socket.id).emit('error',JSON.stringify({msg:"INVALID-JSON"})); // unauth
+          }
+
+
+
         }else{
           // return erro saying no datapro
-          io.to(socket.id).emit('error',{msg:"NDP"}); // unauth
+          io.to(socket.id).emit('error',JSON.stringify({msg:"NDP"})); // unauth
 
         }
 
@@ -71,43 +82,38 @@ io.on('connection', (socket) => {
           io.to(nodes[current_node].debug).emit('data',data);
         }
 
-    }else{
-      // kill on spot - if dont know where to go i wont let you walk
-      io.to(socket.id).emit('error',{msg:"E401"}); // unauth
-      socket.disconnect();
-    }
+
 	});
 
   socket.on('result',function(obj){
     //console.log('result');
     //console.log(obj);
-      io.to(obj.sid).emit('result',obj.data);
+      io.to(obj.sid).emit('result',JSON.stringify(obj.data));
       if(nodes[current_node].debug){
         io.to(nodes[current_node].debug).emit('data',obj.data);
+      }
+  });
+
+  socket.on('error',function(obj){
+    //console.log('result');
+    //console.log(obj);
+      io.to(obj.sid).emit('result',JSON.stringify(obj.data));
+      if(nodes[current_node].debug){
+        io.to(nodes[current_node].debug).emit('error',obj.data);
       }
   });
 
   socket.on('datapro',function(data){
     // update socketid
     nodes[current_node].datapro = socket.id;
-    io.to(socket.id).emit('data',{type:"nodelive"}); // unauth
+    io.to(socket.id).emit('data',{type:"nodelive"});
   })
 
   socket.on('debug',function(data){
     nodes[current_node].debug = socket.id
   })
 
- //check user has joined or not
-  // if not dis connect
-  // wait for  20 sec
- setTimeout(function(){
-    if(!current_node){
-      socket.disconnect();
-      //console.log('inactive client');
-    }else {
-      //console.log('Active client :)');
-    }
-  }, 20000);
+
 
 
 
