@@ -47,10 +47,10 @@ io.on('connection', (socket) => {
     sysinfo();
       ////console.log(nodes);
       // send event conformation to user too
-      io.to(socket.id).emit('result',JSON.stringify({type:"status",msg:"you have joined "+current_node,sid:socket.id}));
+      io.to(socket.id).emit('result',{type:"status",msg:"you have joined "+current_node,sid:socket.id});
       // if the debugger is there send him too
       if(nodes[current_node].debug){
-        io.to(nodes[current_node].debug).emit('data',JSON.stringify({type:'status',msg:clientIp+' has joined the node'}));
+        io.to(nodes[current_node].debug).emit('data',{type:'status',msg:clientIp+' has joined the node'});
       }
 
 
@@ -59,22 +59,14 @@ io.on('connection', (socket) => {
 
         if(nodes[current_node].datapro){
           //data processor alive
-          //check is it json
-          try{
-            var dtobj = JSON.parse(data);
-            dtobj.sid = socket.id;
+            data.sid = socket.id;
             io.to(nodes[current_node].datapro).emit('data',dtobj);
-
-          }catch(e){
-          io.to(socket.id).emit('error',JSON.stringify({msg:"INVALID-JSON"})); // unauth
-          }
 
 
 
         }else{
           // return erro saying no datapro
-          io.to(socket.id).emit('error',JSON.stringify({msg:"NDP"})); // unauth
-
+          io.to(socket.id).emit('error',{msg:"NDP"}); // unauth
         }
 
         //debug for admin
