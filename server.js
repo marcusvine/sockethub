@@ -80,7 +80,7 @@ io.on('connection', (socket) => {
   socket.on('result',function(obj){
     //console.log('result');
     //console.log(obj);
-      io.to(obj.sid).emit('result',JSON.stringify(obj.data));
+      io.to(obj.sid).emit('result',obj.data);
       if(nodes[current_node].debug){
         io.to(nodes[current_node].debug).emit('data',obj.data);
       }
@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
   socket.on('error',function(obj){
     //console.log('result');
     //console.log(obj);
-      io.to(obj.sid).emit('result',JSON.stringify(obj.data));
+      io.to(obj.sid).emit('error',obj.data);
       if(nodes[current_node].debug){
         io.to(nodes[current_node].debug).emit('error',obj.data);
       }
