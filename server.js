@@ -12,7 +12,7 @@ const server = express()
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 const io = socketIO(server);
-
+var nodename ="holland";
 var userCount=0;
 var nodes=[];
 var production = false;
@@ -26,9 +26,9 @@ io.on('connection', (socket) => {
   sysinfo();
 
 
-    if(!nodes["holland"]){
+    if(!nodes[nodename]){
       //console.log("create node");
-      nodes["holland"]={
+      nodes[nodename]={
 				 users: [],
          datapro:false, //data processor
          debug:false   //for admin to see all data which is incoming
@@ -37,13 +37,13 @@ io.on('connection', (socket) => {
     // make user
     var clientIp = socket.request.connection.remoteAddress;
     user ={
-      id: nodes["holland"].users.length + 1,
+      id: nodes[nodename].users.length + 1,
       name: clientIp,
       socket_id: socket.id
 		}
-    nodes["holland"].users.push(user); //add user
-		socket.join("holland"); //join socket + room join
-		current_node = "holland"; //add to current
+    nodes[nodename].users.push(user); //add user
+		socket.join(nodename); //join socket + room join
+		current_node = nodename; //add to current
     sysinfo();
       ////console.log(nodes);
       // send event conformation to user too
@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
         if(nodes[current_node].datapro){
           //data processor alive
             data.sid = socket.id;
-            io.to(nodes[current_node].datapro).emit('data',dtobj);
+            io.to(nodes[current_node].datapro).emit('data',data);
 
 
 
