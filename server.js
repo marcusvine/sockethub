@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
     sysinfo();
       ////console.log(nodes);
       // send event conformation to user too
-      io.to(socket.id).emit('result',{type:"status",msg:"you have joined "+current_node,sid:socket.id});
+      io.to(socket.id).emit('result',{type:"status",msg:"you have joined "+current_node});
       // if the debugger is there send him too
       if(nodes[current_node].debug){
         io.to(nodes[current_node].debug).emit('data',{type:'status',msg:clientIp+' has joined the node'});
@@ -56,23 +56,23 @@ io.on('connection', (socket) => {
 
   socket.on('data',function(data){
     //console.log(data);
-
+      if(isobj(data)){
         if(nodes[current_node].datapro){
           //data processor alive
             data.sid = socket.id;
             io.to(nodes[current_node].datapro).emit('data',data);
 
-
-
         }else{
           // return erro saying no datapro
           io.to(socket.id).emit('error',{msg:"NDP"}); // unauth
         }
-
         //debug for admin
         if(nodes[current_node].debug){
           io.to(nodes[current_node].debug).emit('data',data);
         }
+      }else{
+        io.to(socket.id).emit('error',{msg:"INVALID JSON"}); // unauth
+      }
 
 
 	});
@@ -104,7 +104,6 @@ io.on('connection', (socket) => {
   socket.on('debug',function(data){
     nodes[current_node].debug = socket.id
   })
-
 
 
 
@@ -149,6 +148,14 @@ var update_node = function(node,key,val){
   });
 }
 
+
+var isobj = function(indata){
+  if(typeof(indata) == "object"){
+    return true;
+  }else{
+    return false;
+  }
+}
 
 
 
